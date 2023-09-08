@@ -1,0 +1,36 @@
+# Directories
+data/*
+credentials/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook Files
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*.ipynb
+
+# Data and Output Files
+*.csv
+*.xls
+*.xlsx
+*.json
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.svg
+#outputs/
+#data/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Other Files to Ignore
+.DS_Store
+.idea/
+*.log
