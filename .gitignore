@@ -5,6 +5,8 @@ credentials/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.pytest_cache
+.pytest_cache/
 *$py.class
 
 # Jupyter Notebook Files
