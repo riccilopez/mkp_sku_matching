@@ -13,6 +13,8 @@ __pycache__/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 *.ipynb
+!sku_matching.ipynb
+!eda_notebooks/*.ipynb
 
 # Data and Output Files
 *.csv
