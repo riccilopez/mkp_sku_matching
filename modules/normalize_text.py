@@ -1,10 +1,17 @@
 import re
 import unicodedata
-from nltk.corpus import stopwords
 from collections.abc import Iterable
+from pathlib import Path
 
 # Function to normalize text
 trans_tab = dict.fromkeys(map(ord, u'\u0301\u0308'), None)
+
+def nltk_stopwords():
+    path_file = (Path(__file__).parent / "./dictionary/nltk_stopwords_es.txt").resolve()
+    with open(path_file, 'r') as f:
+        stopwords = [word.rstrip() for word in f]
+    return stopwords
+
 
 def remove_accents(text: str, encode = 'macroman') -> str:
     '''A simple function to remove accent characters'''
@@ -27,7 +34,7 @@ def remove_special_characters(text: str) -> str:
 def remove_es_stopwords(text: str) -> str:
     '''A simple function to remove spanish stopwords'''
     _extra_stopwords = ['sabor']
-    _base_stopwords  = stopwords.words('spanish')
+    _base_stopwords  = nltk_stopwords() 
     _stopwords       = _base_stopwords + _extra_stopwords
     text = ' '.join([word for word in text.split(' ') 
                      if word not in _stopwords])
@@ -116,55 +123,76 @@ def abbreviations_correction(s: str) -> str:
     s = re.sub(r'([\s]*)pouch[e]?(\s|$)', r'\1pch\2', s)
     s = re.sub(r'([\s]*)jugo(\s|$)', r'\1\2', s)
     s = re.sub(r'([\s]*)promocion(\s|$)', r'\1\2', s)
-    s = re.sub(r'(\s|^)rb(\s|$)', r'\1red bull\2', s)
-    s = re.sub(r'(\s|^)(boing)(\s|$)', r'\1\2\2\2\3', s)
     s = re.sub(r'(\s|^)sopa (instantanea)', r'sopa', s)
-    s = re.sub(r'maruchan', r'sopa maruchan', s)
     s = re.sub(r'(\s|^)(limon)*(chile)* habanero(\s|$)', r'\1habanero\4', s)
     s = re.sub(r'(\s|^)(limon)*(chile)* piquin(\s|$)', r'\1piquin\4', s)
-    s = re.sub(r'(\s|^)maruchan(\s|$)', r'\1maruchan 64g\2', s)
     s = re.sub(r'(\s|^)(quereta[a-z]+ )?verde valle( quereta[a-z]+)?(\s|$)', r'\1verdevalle\4', s)
     # hard liquor
+    s = re.sub(r'(\s|^)agua natural(\s|$)', r'\1\2', s)
+    s = re.sub(r'(\s|^)refresco(\s|$)', r'\1\2', s)
+    s = re.sub(r'(\s|^)producto lacteo(\s|$)', r'\1lch\2', s)
+    # Brand normalization
+    s = re.sub(r'(\s|^)rb(\s|$)', r'\1redbull\2', s)
+    s = re.sub(r'(\s|^)red bull(\s|$)', r'\1redbull\2', s)
+    s = re.sub(r'(\s|^)maruchan(\s|$)', r'\1maruchan 64g\2', s)
     s = re.sub(r'(\s|^)vodka skyy(\s|$)', r'\1skyy\2', s)
     s = re.sub(r'(\s|^)vive\s?100[pz]*(\s|$)', r'\1vive100\2', s)
     s = re.sub(r'(\s|^)lol tun(\s|$)', r'\1loltun\2', s)
     s = re.sub(r'(\s|^)vogue 600hoja(\s|$)', r'\1vogue 600 hoja\2', s)
-    s = re.sub(r'(\s|^)sauza hacienda(\s|$)', r'\1sauzahacienda\2', s)
-    s = re.sub(r'(\s|^)(sauzahacienda)(\s|$)', r'\1\2\2\2\3', s)
+    #s = re.sub(r'(\s|^)(domecq )*don pedro(\s|$)', r'\1donpedro\3', s)
     s = re.sub(r'(\s|^)don pedro(\s|$)', r'\1donpedro\2', s)
-    s = re.sub(r'(\s|^)(bry)(\sdomecq)*\sdonpedro(\s|$)', r'\1donpedro\4', s)
-    # s = re.sub(r'(\s|^)(domecq )*don pedro(\s|$)', r'\1donpedro\3', s)
-    s = re.sub(r'(\s|^)(bry )*azteca oro(\s|$)', r'\1aztecaoro\3', s)
+    s = re.sub(r'(\s|^)(bry\s)?(domecq)?\sdonpedro(\s|$)', r'\1\2donpedro\4', s)
     s = re.sub(r'(\s|^)bacardi carta blanca(\s|$)', r'\1bacardi blanco\2', s)
+    s = re.sub(r'(\s|^)(bry )*azteca oro(\s|$)', r'\1aztecaoro\3', s)
+    s = re.sub(r'(\s|^)sauza hacienda(\s|$)', r'\1sauzahacienda\2', s)
     s = re.sub(r'(\s|^)campo azul(\s|$)', r'\1campoazul\2', s)
     s = re.sub(r'(\s|^)cava de oro(\s|$)', r'\1cavadeoro\2', s)
-    s = re.sub(r'(\s|^)jose cuervo(\s|$)', r'\1cuervo\2', s)
     s = re.sub(r'(\s|^)don julio(\s|$)', r'\1donjulio\2', s)
     s = re.sub(r'(\s|^)rancho escondido(\s|$)', r'\1ranchoescondido\2', s)
-    s = re.sub(r'(\s|^)jose cuervo(\s|$)', r'\1josecuervo\2', s)
+    s = re.sub(r'(\s|^)jose cuervo(\s|$)', r'\1cuervo\2', s)
     #s = re.sub(r'(\s|^)[whisky ]*johnnie walker(\s|$)', r'\1johnnie walker\2', s)
     s = re.sub(r'(\s|^)gran centenar[i]*o(\s|$)', r'\1grancentenario\2', s)
+    s = re.sub(r'(\s|^)teq 1800(\s|$)', r'\1cuervo 1800\2', s)
+    s = re.sub(r'maruchan', r'sopa maruchan', s)
     s = re.sub(r'(\s|^)nestle pureza vital(\s|$)', r'\1npv\2', s)
     s = re.sub(r'(\s|^)nestle pv(\s|$)', r'\1npv\2', s)
-    s = re.sub(r'(\s|^)agua natural(\s|$)', r'\1\2', s)
     s = re.sub(r'(\s|^)pepsi cola(\s|$)', r'\1pepsi\2', s)
     s = re.sub(r'(\s|^)vitaloe original(\s|$)', r'\1vitaloe\2', s)
-    s = re.sub(r'(\s|^)refresco(\s|$)', r'\1\2', s)
-    # brand weight
     s = re.sub(r'(\s|^)(vel rosita)(\s|$)', r'\1velrosita\3', s)
-    s = re.sub(r'(\s|^)(velrosita)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)(lala)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)(grancentenario)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)(mezcalito)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)(alpura)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)(campoazul)(\s|$)', r'\1\\22\2\3', s)
-    s = re.sub(r'(\s|^)(cabrito)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)(jimador)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)(donjulio)(\s|$)', r'\1\2\2\2\3', s)
-    s = re.sub(r'(\s|^)producto lacteo(\s|$)', r'\1lch\2', s)
+    s = re.sub(r'(\s|^)caribe cooler(\s|$)', r'\1caribecooler\2', s)
     s = re.sub(r'(\s|^)(sta[\.]*)(\s|$)', r'\1santa\3', s)
-    s = re.sub(r'(\s|^)(agua )*(natural )*(santa maria)(\s|$)', r'\1santa maria\5', s)
+    s = re.sub(r'(\s|^)(agua )*(natural )*(santa maria)(\s|$)', r'\1santamaria\5', s)
     s = re.sub(r'(\s|^)(agua )*(natural )*(san pellegrino)(\s|$)', r'\1san pellegrino\5', s)
+    # brand weight
+    s = remove_duplicated_tokens(s)
+    norm_brands = ['caribecooler', 'velrosita', 'lala', 'grancentenario',
+                   'mezcalito', 'alpura', 'campoazul', 'cabrito', 'aztecaoro',
+                   'jimador', 'donjulio', 'npv', 'pepse', 'vitaloe', 'skyy',
+                   'smirnoff', 'cuervo', 'jumex','presidente', 'sauzahacienda', 'boing',
+                   'redbull', 'santamaria', 'electrolit', 'loltun']
+    # iterate over corrected brands 
+    for brand in norm_brands:
+        # determinate the weight of the brand accroding to its length name
+        len_brand = len(brand)
+        if len_brand <= 5:
+            expanded_brand = 4*brand
+        elif len_brand <= 8:
+            expanded_brand = 3*brand
+        else: expanded_brand = 2*brand
+        s = re.sub(r'(\s|^)(' + brand + ')(\s|$)', r'\1' + expanded_brand + '\3', s)
+
+    # s = re.sub(r'(\s|^)(caribecooler)(\s|$)', r'\1\2\2\2\3', s) 
+    # s = re.sub(r'(\s|^)(velrosita)(\s|$)', r'\1\2\2\2\3', s)
+    # s = re.sub(r'(\s|^)(lala)(\s|$)', r'\1\2\2\2\2\3', s)
+    # s = re.sub(r'(\s|^)(grancentenario)(\s|$)', r'\1\2\2\2\3', s)
+    # s = re.sub(r'(\s|^)(mezcalito)(\s|$)', r'\1\2\2\2\3', s)
+    # s = re.sub(r'(\s|^)(alpura)(\s|$)', r'\1\2\2\2\3', s)
+    # s = re.sub(r'(\s|^)(campoazul)(\s|$)', r'\1\\22\2\3', s)
+    # s = re.sub(r'(\s|^)(cabrito)(\s|$)', r'\1\2\2\2\3', s)
+    # s = re.sub(r'(\s|^)(jimador)(\s|$)', r'\1\2\2\2\3', s)
+    # s = re.sub(r'(\s|^)(donjulio)(\s|$)', r'\1\2\2\2\3', s)
+    # 
+    
     return s
 
 def normalize_text(text: str, encode = 'macroman') -> str:

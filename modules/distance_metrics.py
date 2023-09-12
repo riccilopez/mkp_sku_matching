@@ -48,7 +48,7 @@ def remove_units(s_clean: str) -> Iterable:
     return text
 
 
-def levenshtein_and_dice_ratio(a: str, b: str, dice_weight: float = 0.8) -> float: 
+def levenshtein_and_dice_ratio(a: str, b: str, dice_weight: float = 0.15) -> float: 
     '''Computes the average distance ratio between 
        strings `a` and `b` using the 
        Levenshtein and Sorensen-Dice ratios
@@ -66,17 +66,12 @@ def jaccard_similarity(A: Iterable, B: Iterable) -> float:
     '''
     card_AnB = len(list(set(A) & set(B)))
     card_AuB = len(set(A + B)) 
-    jaccard_dist = 0
+    jaccard_sim = 1
     if card_AuB > 0:
-        jaccard_dist = np.divide(card_AnB, card_AuB)
-    # card_AnB = 2 * len(list(set(A) & set(B)))
-    # card_AuB = len(A) + len(B)
-    # jaccard_dist = 0
-    # if card_AuB > 0:
-    #     jaccard_dist = np.divide(card_AnB, card_AuB)
-    return jaccard_dist 
+        jaccard_sim = np.divide(card_AnB, card_AuB)
+    return jaccard_sim 
 
-def jaccard_distance(a: str, b: str) -> float:
+def jaccard_distance_units(a: str, b: str) -> float:
     '''Computes the Jaccard distance between the set
     of units of two given strings, `a` and `b`
     '''
