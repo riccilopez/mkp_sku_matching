@@ -1,4 +1,5 @@
 
+import math
 import numpy as np
 from modules.distance_metrics import levenshtein_and_dice_ratio, jaccard_distance_units
 
@@ -9,7 +10,7 @@ def sku_name_conf(a, b) -> float:
     lvd_conf = 1 - levenshtein_and_dice_ratio(a, b)
     jac_dist_units = jaccard_distance_units(a, b)
     # Apply a ReLU
-    pond_conf = np.max([0.0, (lvd_conf) - (jac_dist_units * 0.17)]) 
+    pond_conf = max(0, (lvd_conf) - (jac_dist_units * 0.17))
     return pond_conf
 
 
@@ -20,7 +21,7 @@ def exp_matching_value(x: float, decay: float = 1.02) -> float:
     if x == 0:
         return x
     else:
-        return np.exp(1 - (1/x**decay))
+        return math.exp(1 - (1/x**decay))
 
 
 def get_confidence(a: str, b: str) -> float:
@@ -29,5 +30,5 @@ def get_confidence(a: str, b: str) -> float:
     """
     conf = sku_name_conf(a, b)
     conf = exp_matching_value(conf, decay = 1.01)
-    return round(conf, 2)
+    return round(conf, 4)
 
