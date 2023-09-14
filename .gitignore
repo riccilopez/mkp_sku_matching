@@ -14,6 +14,7 @@ __pycache__/
 *.ipynb_checkpoints
 *.ipynb
 !sku_matching.ipynb
+!sku_matching_pyspark.ipynb
 !eda_notebooks/*.ipynb
 
 # Data and Output Files
