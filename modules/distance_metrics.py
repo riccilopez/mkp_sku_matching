@@ -58,7 +58,12 @@ def levenshtein_and_dice_ratio(a: str, b: str, dice_weight: float = 0.15) -> flo
     b = remove_units(b)
     dist_lev  = levenshtein_dist_ratio(a, b)
     dist_dice = dice_sorensen_dist_ratio(a, b)
-    return np.mean([dist_lev * (2 - dice_weight), dist_dice * dice_weight])
+    # Avoid dividing by zero by evaluating each term
+    if dist_lev + dist_dice <= 0:
+        mean_dist = 0
+    else:
+        mean_dist =  ((dist_lev * (2 - dice_weight)) + (dist_dice * dice_weight)) / 2
+    return mean_dist
 
 def jaccard_similarity(A: Iterable, B: Iterable) -> float:
     '''Compute the Jaccard similarity between
@@ -68,7 +73,7 @@ def jaccard_similarity(A: Iterable, B: Iterable) -> float:
     card_AuB = len(set(A + B)) 
     jaccard_sim = 1
     if card_AuB > 0:
-        jaccard_sim = np.divide(card_AnB, card_AuB)
+        jaccard_sim = card_AnB / card_AuB
     return jaccard_sim 
 
 def jaccard_distance_units(a: str, b: str) -> float:
@@ -77,6 +82,6 @@ def jaccard_distance_units(a: str, b: str) -> float:
     '''
     A = extract_units(a)
     B = extract_units(b)
-    similarity = jaccard_similarity(A, B)
-    dist = 1 - similarity
-    return dist
+    jaccard_sim  = jaccard_similarity(A, B)
+    jaccard_dist = 1 - jaccard_sim 
+    return jaccard_dist 
