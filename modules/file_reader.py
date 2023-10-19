@@ -42,11 +42,8 @@ class MktpPricesFileReader:
         except KeyError:
             print(f'{e} - Required columns were not found.')
             return None
-        except DateParseError:
-            print(f'{e} - `date` column has the incorrect type.')
-            return None
         except ValueError:
-            print(f'{e} - the given columns have not the correct type.')
+            print(f'{e} - `date` column has the incorrect type.')
             return None
         else:
             # Include the country column
@@ -80,7 +77,8 @@ class OnlineFileReader:
             'col_sku_name':   'name', 
             'col_competitor': 'company',
             'col_url':        'url',
-            'col_price':      'price'
+            'col_price':      'price',
+            'col_date':       'date'
         }
 
     def parse_price_col(self, val: Union[str, float]) -> float:
@@ -145,6 +143,7 @@ class OnlineFileReader:
         col_sku_name = self.req_cols['col_sku_name']
         col_price    = self.req_cols['col_price']
         col_url      = self.req_cols['col_url']
+        col_date     = self.req_cols['col_date']
         col_gift     = 'gift_or_extra_prod'
 
         # Read the CSV file using Pandas
@@ -156,6 +155,7 @@ class OnlineFileReader:
         # 1) Verify the required columns exists
         # 2) Check if the price, name, and url columns are correct
         # 3) Check that the company column is unique
+        # 4) Check the dat column is valid
 
         # 1) Verify that the required columns are present
         missing_columns = [col for col in self.req_cols.values() 
@@ -165,7 +165,19 @@ class OnlineFileReader:
             print(f"Missing columns: {', '.join(missing_columns)}")
             return None
         
-        # In case of combo or gifts, separate the main sku (the first)
+        # Validate the date column
+        try:
+            assert df[col_date].nunique() == 1
+            df[col_date] = pd.to_datetime(df[col_date], 
+                                                 format = "%d-%m-%y")
+        except AssertionError as e:
+            print(f'{e} - Multiple dates were provided.')
+            return None
+        except ValueError as e:
+            print(f'{e} - the given columns have not the correct type.')
+            return None
+        
+        # In case of combo or gifts, separate the main sku (the first occurrence)
         df[[col_sku_name, col_gift]] = df[[col_sku_name]]\
                 .apply(lambda row: self.extract_gift_from_sku_name(row[col_sku_name]),
                        axis = 'columns', result_type = 'expand')
