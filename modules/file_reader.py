@@ -192,6 +192,13 @@ class OnlineFileReader:
         # Parse numeric columns `url` 
         df.loc[:, col_url]      = df[col_url].apply(self.validate_url_col)
 
+        # Manage `specialPrice`` column
+        # Check if the `SpecialPrice` exists if not, create special_price
+        if 'specialPrice' in df.columns:
+            df.loc[:, 'specialPrice']    = df['specialPrice'].apply(self.parse_price_col) 
+        else:
+            df['specialPrice'] = np.nan
+
         # Filter records where 'sku' or 'price' is null
         valid_df = df.dropna(subset=[col_sku_name])
         if valid_df[col_sku_name].isnull().all():
@@ -211,16 +218,18 @@ class OnlineFileReader:
 
         # Rename columns
         valid_df = valid_df.rename({
-            'name':    'competitor_sku_name', 
-            'company': 'competitor_name',
-            'price':   'competitor_price',
-            'url':     'competitor_url',
-            'zone':    'region'}, axis = 1)
+            'name':         'competitor_sku_name', 
+            'company':      'competitor_name',
+            'price':        'competitor_price',
+            'specialPrice': 'special_price',
+            'url':          'competitor_url',
+            'zone':         'region'}, axis = 1)
         
         # Return only required columns?
         if self.only_required_cols:
             valid_df = valid_df[['type', 'country', 'region', 
                                  'date', 'competitor_name',
-                                 'competitor_sku_name', 'competitor_price', 
+                                 'competitor_sku_name', 
+                                 'competitor_price', 'special_price',
                                  'competitor_url', col_gift]]
         return valid_df
