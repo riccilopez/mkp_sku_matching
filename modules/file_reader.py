@@ -39,10 +39,10 @@ class MktpPricesFileReader:
         except FileNotFoundError as e:
             print(f'{e} - The `{self.file_path.name}` file was not found.')
             return None
-        except KeyError:
+        except KeyError as e:
             print(f'{e} - Required columns were not found.')
             return None
-        except ValueError:
+        except ValueError as e:
             print(f'{e} - `date` column has the incorrect type.')
             return None
         else:
@@ -144,12 +144,14 @@ class OnlineFileReader:
         col_price    = self.req_cols['col_price']
         col_url      = self.req_cols['col_url']
         col_date     = self.req_cols['col_date']
+        col_comp     = self.req_cols['col_competitor']
         col_gift     = 'gift_or_extra_prod'
 
         # Read the CSV file using Pandas
         df = pd.read_csv(self.file_path, 
                          sep = self.sep,
                          engine = 'python',
+                         on_bad_lines = 'skip',
                          encoding = 'utf-8')
         
         # 1) Verify the required columns exists
@@ -167,14 +169,15 @@ class OnlineFileReader:
         
         # Validate the date column
         try:
-            assert df[col_date].nunique() == 1
-            df[col_date] = pd.to_datetime(df[col_date], 
-                                                 format = "%d-%m-%y")
+            #assert df[col_date].nunique() == 1
+            df[col_date] = pd.to_datetime(df[col_date], errors = 'coerce',
+                                          format = "%d-%m-%y")
         except AssertionError as e:
-            print(f'{e} - Multiple dates were provided.')
+            print(f'{self.file_path.name} - ({type(e)}) Multiple dates were provided.',
+                  df[col_date].unique())
             return None
         except ValueError as e:
-            print(f'{e} - the given columns have not the correct type.')
+            print(f'{self.file_path.name} - ({type(e)}) the `date` column is incorrect.')
             return None
         
         # In case of combo or gifts, separate the main sku (the first occurrence)
@@ -188,13 +191,24 @@ class OnlineFileReader:
         df.loc[:, col_sku_name] = df[col_sku_name].apply(self.validate_sku_name_col)
         # Parse numeric columns `url` 
         df.loc[:, col_url]      = df[col_url].apply(self.validate_url_col)
+
         # Filter records where 'sku' or 'price' is null
-        valid_df = df.dropna(subset=[col_sku_name, col_price])
-        if len(valid_df) == 0:
+        valid_df = df.dropna(subset=[col_sku_name])
+        if valid_df[col_sku_name].isnull().all():
             #TODO: Check if rise an AssertionError
-            print(f"The Dataframe ({self.file_path.name})",
-                   "has incorrect `price` and/or `name` values.")
+            print(f"{self.file_path.name} - has incorrect `name` values.")
             return None
+        valid_df = df.dropna(subset=[col_price])
+        if valid_df[col_price].isnull().all():
+            #TODO: Check if rise an AssertionError
+            print(f"{self.file_path.name} - has incorrect `price` values.")
+            return None
+        
+        # Parse the rest of columns
+        valid_df.loc[:, col_comp] = valid_df[col_comp].astype('category')
+        valid_df.loc[:, col_url]  = valid_df[col_url].astype('string')
+        valid_df.loc[:, col_gift] = valid_df[col_gift].astype('string')
+
         # Rename columns
         valid_df = valid_df.rename({
             'name':    'competitor_sku_name', 
