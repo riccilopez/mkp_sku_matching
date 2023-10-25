@@ -88,7 +88,7 @@ class OnlineFileReader:
         """
         s = re.sub('\"|\$|\,|[c/u]|[/u]', '', str(val)).strip()
         try:
-            num_val = float(s)
+            num_val = round(float(s), 2)
         except ValueError as e:
             num_val = np.nan
         return num_val
@@ -124,6 +124,10 @@ class OnlineFileReader:
         len_sku_name = len(sku_name)
         num_words    = len(sku_name.split(' '))
         if len_sku_name >= 10 and num_words > 2:
+            sku_name = ' '.join([s.capitalize() 
+                                 if len(s) >= 3 else s.lower()
+                                 for s in sku_name.split(' ')
+                                ])
             return sku_name 
         else:
             return np.nan
@@ -191,6 +195,10 @@ class OnlineFileReader:
         df.loc[:, col_sku_name] = df[col_sku_name].apply(self.validate_sku_name_col)
         # Parse numeric columns `url` 
         df.loc[:, col_url]      = df[col_url].apply(self.validate_url_col)
+        # Replace the `zone`
+        df.loc[:, 'zone']       = df['zone'].replace({
+            'unique': 'Nacional'    
+        })
 
         # Manage `specialPrice`` column
         # Check if the `SpecialPrice` exists if not, create special_price
@@ -223,11 +231,11 @@ class OnlineFileReader:
             'price':        'competitor_price',
             'specialPrice': 'special_price',
             'url':          'competitor_url',
-            'zone':         'region'}, axis = 1)
+            'zone':         'locality'}, axis = 1)
         
         # Return only required columns?
         if self.only_required_cols:
-            valid_df = valid_df[['type', 'country', 'region', 
+            valid_df = valid_df[['type', 'country', 'locality', 
                                  'date', 'competitor_name',
                                  'competitor_sku_name', 
                                  'competitor_price', 'special_price',
