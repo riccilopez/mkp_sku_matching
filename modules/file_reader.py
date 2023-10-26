@@ -149,6 +149,7 @@ class OnlineFileReader:
         col_url      = self.req_cols['col_url']
         col_date     = self.req_cols['col_date']
         col_comp     = self.req_cols['col_competitor']
+        col_quantity = 'quantity'
         col_gift     = 'gift_or_extra_prod'
 
         # Read the CSV file using Pandas
@@ -171,6 +172,14 @@ class OnlineFileReader:
             print(f"Missing columns: {', '.join(missing_columns)}")
             return None
         
+        # Manage the `quantity` column, if exists fill with empty string
+        # if not, create it and fill it with empty stings
+        if col_quantity in df.columns:
+            df[col_quantity] = df[col_quantity].astype('string')
+            df.loc[:, col_quantity] = df[col_quantity].fillna('')
+        else:
+            df[col_quantity] = ''
+        
         # Validate the date column
         try:
             #assert df[col_date].nunique() == 1
@@ -191,9 +200,11 @@ class OnlineFileReader:
         
         # Parse numeric columns `price` 
         df.loc[:, col_price]    = df[col_price].apply(self.parse_price_col)
-        # Parse numeric columns `name` 
+        # Validate the `name` column
         df.loc[:, col_sku_name] = df[col_sku_name].apply(self.validate_sku_name_col)
-        # Parse numeric columns `url` 
+        # Add `quantity` data if it exists
+        df[col_sku_name]        = df[col_sku_name].str.cat(df[col_quantity])
+        # Validate the `url` column
         df.loc[:, col_url]      = df[col_url].apply(self.validate_url_col)
         # Replace the `zone`
         df.loc[:, 'zone']       = df['zone'].replace({
