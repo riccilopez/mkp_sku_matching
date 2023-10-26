@@ -95,14 +95,14 @@ class OnlineFileReader:
     
     def validate_url_col(self, url: str) -> str:
         """
-            Validates the `url` column returning `np.nan` in case 
+            Validates the `url` column returning `None` in case 
             of incorrect format.
         """
         url_pattern = re.compile(r'^https?://[\w.-]+')
         if url_pattern.match(str(url)):
             return url
         else:
-            return np.nan
+            return 'None'
         
     def extract_gift_from_sku_name(self, sku_name: str) -> str:
         """
@@ -113,12 +113,12 @@ class OnlineFileReader:
         sku_name = str(sku_name)
         tokens   = sku_name.split(' + ', maxsplit = 1)
         if len(tokens) == 1:
-            tokens += [np.nan] 
+            tokens += ['None'] 
         return tokens
 
     def validate_sku_name_col(self, sku_name: str) -> str:
         """
-            Validates the `sku_name` column returning `np.nan` in case 
+            Validates the `sku_name` column returning `None` in case 
             of incorrect format.
         """
         len_sku_name = len(sku_name)
@@ -130,7 +130,7 @@ class OnlineFileReader:
                                 ])
             return sku_name 
         else:
-            return np.nan
+            return pd.NA
 
     def read_file(self) -> Union[pd.DataFrame, None]:
         """
@@ -203,7 +203,7 @@ class OnlineFileReader:
         # Manage `specialPrice`` column
         # Check if the `SpecialPrice` exists if not, create special_price
         if 'specialPrice' in df.columns:
-            df.loc[:, 'specialPrice']    = df['specialPrice'].apply(self.parse_price_col) 
+            df.loc[:, 'specialPrice'] = df['specialPrice'].apply(self.parse_price_col) 
         else:
             df['specialPrice'] = np.nan
 
