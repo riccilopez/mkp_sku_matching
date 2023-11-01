@@ -203,7 +203,7 @@ class OnlineFileReader:
         # Validate the `name` column
         df.loc[:, col_sku_name] = df[col_sku_name].apply(self.validate_sku_name_col)
         # Add `quantity` data if it exists
-        df[col_sku_name]        = df[col_sku_name].str.cat(df[col_quantity])
+        df[col_sku_name]        = df[col_sku_name].str.cat(df[col_quantity], sep = ' ')
         # Validate the `url` column
         df.loc[:, col_url]      = df[col_url].apply(self.validate_url_col)
         # Replace the `zone`
