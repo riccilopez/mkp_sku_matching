@@ -102,7 +102,7 @@ class OnlineFileReader:
         if url_pattern.match(str(url)):
             return url
         else:
-            return 'None'
+            return 'https://' + url
         
     def extract_gift_from_sku_name(self, sku_name: str) -> str:
         """
