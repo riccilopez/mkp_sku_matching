@@ -202,8 +202,9 @@ class OnlineFileReader:
         df.loc[:, col_price]    = df[col_price].apply(self.parse_price_col)
         # Validate the `name` column
         df.loc[:, col_sku_name] = df[col_sku_name].apply(self.validate_sku_name_col)
-        # Add `quantity` data if it exists
-        df[col_sku_name]        = df[col_sku_name].str.cat(df[col_quantity], sep = ' ')
+        df = df.dropna(subset=[col_sku_name])
+        # Add `quantity` data 
+        df.loc[:, col_sku_name] = df[col_sku_name].str.cat(df[col_quantity], sep = ' ')
         # Validate the `url` column
         df.loc[:, col_url]      = df[col_url].apply(self.validate_url_col)
         # Replace the `zone`
