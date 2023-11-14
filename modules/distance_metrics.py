@@ -48,7 +48,8 @@ def remove_units(s_clean: str) -> Iterable:
     return text
 
 
-def levenshtein_and_dice_ratio(a: str, b: str, dice_weight: float = 0.15) -> float: 
+def levenshtein_and_dice_ratio(a: str, b: str, 
+                               dice_weight: float = 0.20) -> float: 
     '''Computes the average distance ratio between 
        strings `a` and `b` using the 
        Levenshtein and Sorensen-Dice ratios
