@@ -98,11 +98,17 @@ class OnlineFileReader:
             Validates the `url` column returning `None` in case 
             of incorrect format.
         """
-        url_pattern = re.compile(r'^https?://[\w.-]+')
-        if url_pattern.match(str(url)):
-            return url
-        else:
-            return 'https://' + url
+        if url is None or not isinstance(url, str):
+            return None
+        len_url = len(url)
+        if len_url > 10:
+            url_pattern = re.compile(r'^https?://[\w.-]+')
+            if url_pattern.match(str(url)):
+                return url
+            else:
+                return 'https://' + url
+        else: 
+            return None
         
     def extract_gift_from_sku_name(self, sku_name: str) -> str:
         """
