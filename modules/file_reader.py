@@ -145,8 +145,8 @@ class OnlineFileReader:
         # Check if the file exists and it is not empty
         if not os.path.exists(self.file_path):
             return None 
-        if os.path.getsize(self.file_path) == 0:
-            print(f"The file {self.file_path.name} is empty or not a valid file.")
+        if os.path.getsize(self.file_path) <= 300: # less than 300 bytes
+            print(f"The file {self.file_path.name} is empty or is not a valid file.")
             return None
 
         # Define the required columns
