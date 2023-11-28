@@ -1,6 +1,7 @@
 import re
 import numpy as np
 import functools
+import typing
 from scipy.spatial.distance import pdist, squareform, jaccard
 from collections.abc import Iterable
 import textdistance
@@ -10,7 +11,7 @@ from modules.normalize_text import extract_units
 def geo_mean_overflow(iterable: Iterable):
     return np.exp(np.log(iterable).mean())
 
-def iter_to_string_decorator(func: callable):
+def iter_to_string_decorator(func: typing.Callable):
     '''
     Decorates a text distance function to
     take lists as input
@@ -49,7 +50,7 @@ def remove_units(s_clean: str) -> Iterable:
 
 
 def levenshtein_and_dice_ratio(a: str, b: str, 
-                               dice_weight: float = 0.20) -> float: 
+                               dice_weight: float = 0.7) -> float: 
     '''Computes the average distance ratio between 
        strings `a` and `b` using the 
        Levenshtein and Sorensen-Dice ratios
@@ -83,6 +84,10 @@ def jaccard_distance_units(a: str, b: str) -> float:
     '''
     A = extract_units(a)
     B = extract_units(b)
+    # If they are 1 len then split values
+    if len(A) == len(B) and len(A) == 1:
+        A = re.split(r'(\d+)', A[0])
+        B = re.split(r'(\d+)', B[0])
     jaccard_sim  = jaccard_similarity(A, B)
     jaccard_dist = 1 - jaccard_sim 
     return jaccard_dist 
