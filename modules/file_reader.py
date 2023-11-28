@@ -33,7 +33,7 @@ class MktpPricesFileReader:
             # Check the column date is correct
             df['date']  = pd.to_datetime(df['date'])
             # Remove leading zeros
-            df['sku']   = df['sku'].str.lstrip('0')
+            df['sku']   = df['sku'].str.lstrip('0').str.strip()
             # Format the price column
             df['price'] = df['price'].astype(float).round(2)
         except FileNotFoundError as e:
