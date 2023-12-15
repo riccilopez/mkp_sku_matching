@@ -274,7 +274,7 @@ def abbreviations_correction(s: str) -> str:
     s = re.sub(r'fres[c|k]aleche(:? leche)?', r'freskaleche', s)
     s = re.sub(r'viejo calda', r'calda', s)
     s = re.sub(r'santa fe', r'santafe', s)
-    
+    s = re.sub(r'amarillo manzanares', r'manzanares', s)
     return s
 
 def normalize_text(text: str, encode = 'macroman') -> str:
